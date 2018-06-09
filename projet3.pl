@@ -1,14 +1,16 @@
-grille([
-  1,2,3,4,5,6,7,8,2,
-  4,5,8,1,7,8,7,8,8,
-  9,7,6,2,3,9,5,8,6,
-  4,2,3,4,5,6,6,8,8,
-  5,2,2,5,7,6,6,8,7,
-  6,2,3,5,5,7,7,8,6,
-  7,2,2,4,5,6,8,8,6,
-  8,2,3,4,5,5,7,9,9,
-  9,2,3,4,5,6,6,7,8
-  ]).
+
+
+  grille([
+    1,2,3,4,5,6,7,8,9,
+    2,3,4,5,6,7,8,9,1,
+    3,4,5,6,7,8,9,1,2,
+    4,5,6,7,8,9,1,2,3,
+    5,6,7,8,9,1,2,3,4,
+    6,7,8,9,1,2,3,4,5,
+    7,8,9,1,2,3,4,5,6,
+    8,9,1,2,3,4,5,6,7,
+    9,1,2,3,4,5,6,7,8
+    ]).
 
 numero([1,2,3,4,5,6,7,8,9,' ']) :- !.
 
@@ -96,7 +98,33 @@ valideCol(I, N, Col, NumPossible) :- recupererElement(Col, N, E), dansListe(NumP
           N1 is N-1, valideCol(I, N1, Col, B2).
 valideCol(I, 0, Col, B):- !.
 
-%Valider Grille 3x3 
+%Valider Grille 3x3
 valideGrille(A2) :- recupererGrille(A2, R), valideLigne2(1, R).
 
 %Valider Sudoku TODO
+valideToutesLignes(N) :- valideLigne(N), N1 is N-1, valideToutesLignes(N1), !.
+valideToutesLignes(0).
+
+valideToutesCols(N) :- valideCol(N), N1 is N-1, valideToutesCols(N1).
+valideToutesCols(0).
+
+valideToutesGrilles(N) :- valideGrille(N), N1 is N-1, valideToutesGrilles(N1).
+valideToutesGrilles(0).
+
+valideSudoku(0) :- valideToutesLignes(8), valideToutesCols(8), valideToutesGrilles(8).
+
+%afficher Grille
+afficherLigne([], _).
+afficherLigne([T|Q], N):- N > 0, M is N-1, write(' '), write(T), write(' '), afficherLigne(Q, M).
+afficherLigne(L, 0) :- write('|'), afficherLigne(L, 3).
+afficherGrille(G) :- 	recupererLigne(G, 1, L1), afficherLigne(L1, 3), write('\n'),
+			recupererLigne(G, 2, L2), afficherLigne(L2, 3), write('\n'),
+			recupererLigne(G, 3, L3), afficherLigne(L3, 3), write('\n'),
+			write('---------+---------+---------\n'),
+			recupererLigne(G, 4, L4), afficherLigne(L4, 3), write('\n'),
+			recupererLigne(G, 5, L5), afficherLigne(L5, 3), write('\n'),
+			recupererLigne(G, 6, L6), afficherLigne(L6, 3), write('\n'),
+			write('---------+---------+---------\n'),
+			recupererLigne(G, 7, L7), afficherLigne(L7, 3), write('\n'),
+			recupererLigne(G, 8, L8), afficherLigne(L8, 3), write('\n'),
+recupererLigne(G, 9, L9), afficherLigne(L9, 3).
