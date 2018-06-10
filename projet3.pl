@@ -1,17 +1,15 @@
 
 
-  grille([
-    1,2,3,4,5,6,7,8,9,
-    2,3,4,5,6,7,8,9,1,
-    3,4,5,6,7,8,9,1,2,
-    4,5,6,7,8,9,1,2,3,
-    5,6,7,8,9,1,2,3,4,
-    6,7,8,9,1,2,3,4,5,
-    7,8,9,1,2,3,4,5,6,
-    8,9,1,2,3,4,5,6,7,
-    9,1,2,3,4,5,6,7,8
-    ]).
 
+        grille([' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+                ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' ]) :- !.
 numero([1,2,3,4,5,6,7,8,9,' ']) :- !.
 
 %Recupere l indice de la liste
@@ -68,7 +66,7 @@ recupererCol([TG|QG], NumCol, Res, Compteur, Tmp) :- Compteur > 0, Compteur1 is 
 recupererCol([TG|QG], _, Res, 0, Tmp) :- concat([], Tmp, Res), !.
 
 %Recuperer Grille 3x3
-recupererGrille(NumGrille, Res) :- grille(G), indiceGrille(L,C,NumGrille), recupererLigne(G, L, L1), recupererLigne(G, L+1, L2), recupererLigne(G, L+2, L3), recupererGrille(L1,L2,L3,C,Res), !.
+recupererGrille(NumGrille, Res,G) :- indiceGrille(L,C,NumGrille), La is L+1, Lb is L+2, recupererLigne(G, L, L1), recupererLigne(G, La, L2), recupererLigne(G, Lb, L3), recupererGrille(L1,L2,L3,C,Res), !.
 recupererGrille(L1,L2,L3,C,Res) :- recupererGrille2(L1, C, Res1), recupererGrille2(L2, C, Res2), recupererGrille2(L3, C, Res3), concat(Res1, Res2, Res4), concat(Res4, Res3, Res).
 recupererGrille2(L, C, Res) :- C1 is C-1, C2 is C+1, recupererElement(L, C1, R1), recupererElement(L, C, R2), recupererElement(L, C2, R3), unifie(R1, R11), unifie(R2, R22), unifie(R3, R33), concat(R11, R22, R4), concat(R4, R33, Res).
 
@@ -80,38 +78,39 @@ supprimeElement([T|Q], X, L, R) :- concat(L, [T], C), supprimeElement(Q, X, C, R
 
 
 %Valider une Ligne
-valideLigne(I) :- valideLigne(I, 8), !.
-valideLigne(I, N) :- grille(G), recupererLigne(G, I, Ligne), numero(NumPossible), recupererElement(Ligne, N, E),
+valideLigne(I,G) :- valideLigne(I, 8,G), !.
+valideLigne(I, N,G) :- recupererLigne(G, I, Ligne), numero(NumPossible), recupererElement(Ligne, N, E),
           dansListe(NumPossible, E), supprimeElement(NumPossible, E, B2), N1 is N-1, valideLigne(I, N1, Ligne, B2).
 valideLigne(I, N, Ligne, NumPossible) :- recupererElement(Ligne, N, E), dansListe(NumPossible, E), supprimeElement(NumPossible, E, B2),
           N1 is N-1, valideLigne(I, N1, Ligne, B2).
-valideLigne(I, 0, Ligne, B):- !.
+valideLigne(I, -1, Ligne, B):- !.
 
 valideLigne2(I, G):- N is 8, recupererLigne(G, I, Ligne), numero(NumPossible), recupererElement(Ligne, N, E),
           dansListe(NumPossible, E), supprimeElement(NumPossible, E, B2), N1 is N-1, valideLigne(I, N1, Ligne, B2), !.
 
 %Valider une Colone
-valideCol(I) :- valideCol(I, 8), !.
-valideCol(I, N) :- grille(G), recupererCol(G, I, Col), numero(NumPossible), recupererElement(Col, N, E),
+valideCol(I,G) :- valideCol(I, 8,G), !.
+valideCol(I, N,G) :- recupererCol(G, I, Col), numero(NumPossible), recupererElement(Col, N, E),
           dansListe(NumPossible, E), supprimeElement(NumPossible, E, B2), N1 is N-1, valideCol(I, N1, Col, B2).
 valideCol(I, N, Col, NumPossible) :- recupererElement(Col, N, E), dansListe(NumPossible, E), supprimeElement(NumPossible, E, B2),
           N1 is N-1, valideCol(I, N1, Col, B2).
-valideCol(I, 0, Col, B):- !.
+valideCol(I, -1, Col, B):- !.
 
 %Valider Grille 3x3
-valideGrille(A2) :- recupererGrille(A2, R), valideLigne2(1, R).
+valideGrille(A2,G) :- recupererGrille(A2, R,G), valideLigne2(1, R).
 
 %Valider Sudoku TODO
-valideToutesLignes(N) :- valideLigne(N), N1 is N-1, valideToutesLignes(N1), !.
-valideToutesLignes(0).
+valideToutesLignes(N,G) :- valideLigne(N,G), N1 is N-1, valideToutesLignes(N1,G).
+valideToutesLignes(0,G).
 
-valideToutesCols(N) :- valideCol(N), N1 is N-1, valideToutesCols(N1).
-valideToutesCols(0).
+valideToutesCols(N,G) :- valideCol(N,G), N1 is N-1, valideToutesCols(N1,G).
+valideToutesCols(0, G).
 
-valideToutesGrilles(N) :- valideGrille(N), N1 is N-1, valideToutesGrilles(N1).
-valideToutesGrilles(0).
+valideToutesGrilles(0, G).
+valideToutesGrilles(N, G) :- valideGrille(N, G), N1 is N-1, valideToutesGrilles(N1, G).
 
-valideSudoku(0) :- valideToutesLignes(8), valideToutesCols(8), valideToutesGrilles(8).
+
+valideSudoku(0, G) :- valideToutesLignes(9, G), valideToutesCols(9, G), valideToutesGrilles(9, G).
 
 %afficher Grille
 afficherLigne([], _).
@@ -127,4 +126,25 @@ afficherGrille(G) :- 	recupererLigne(G, 1, L1), afficherLigne(L1, 3), write('\n'
 			write('---------+---------+---------\n'),
 			recupererLigne(G, 7, L7), afficherLigne(L7, 3), write('\n'),
 			recupererLigne(G, 8, L8), afficherLigne(L8, 3), write('\n'),
-recupererLigne(G, 9, L9), afficherLigne(L9, 3).
+      recupererLigne(G, 9, L9), afficherLigne(L9, 3).
+
+%remplacerElement
+remplacerElement(E, S, L, C, V) :- indice(L, C, N), remplacerElement(E, S, N, V).
+remplacerElement([_|Q], [V|Q], 0, V).
+remplacerElement([T1|Q1], R, N, V):- concat([T1], Q, R), remplacerElement(Q1, Q, M, V), N is M+1.
+
+%Generer Grille
+generer(G, R, Compteur) :- random(0,10,V), random(0,10, L), random(0,10, C),  indice(L,C,N), remplacerElement(G, G1, L, C, V), unifie(N, N1),
+      concat([], N1, ListeNonModifiable), Compteur1 is Compteur-1, random(0,81,N2), genererN(G1, R, ListeNonModifiable, Compteur1, N2).
+
+genererN(G,R,ListeNonModifiable,0, N) :- concat([], G, R), afficherGrille(R).
+genererN(G,R,ListeNonModifiable,Compteur, N) :- dansListe(ListeNonModifiable, N), random(0,81,N1), genererN(G,R,ListeNonModifiable,Compteur,N1).
+genererN(G,R,ListeNonModifiable,Compteur, N) :- \+dansListe(ListeNonModifiable, N), unifie(N,N1), concat(ListeNonModifiable, N1, ListeNonModifiable1),
+      random(0,10,V), genererV(G,R,ListeNonModifiable1,Compteur, N, V).
+
+genererV(G,R,ListeNonModifiable,Compteur, N, V) :- remplacerElement(G, G1, N, V), \+valideSudoku(0,G1), random(0,10,V1),
+        genererV(G,R,ListeNonModifiable,Compteur, N, V1).
+genererV(G,R,ListeNonModifiable,Compteur, N, V) :- remplacerElement(G, G1, N, V), valideSudoku(0,G1), Compteur1 is Compteur-1, random(0,81,N1),
+        genererN(G1,R,ListeNonModifiable,Compteur1, N1).
+
+%Liste des indices non modifiables
